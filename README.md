@@ -21,6 +21,13 @@ You can then access the service by invoking the container with the service's nam
 
 `$serviceResult = $container('serviceName');`
 
+### Protecting Parameters
+
+If you want to store an invokable object as a parameter, you have to bind it to the container using the protect() method.
+The container will try to run any invokable by default during service resolution. Protecting the parameter means that you're guaranteed to get back what you put in.
+
+`$container->protect('protectedParameter', function () { return 'will run outside container';});`
+
 ### Defining Shared Services
 
 Shared services return the same instance every time the service is resolved. To define a shared service, simply bind it to the container with the bindSingleton method.

@@ -46,6 +46,13 @@ class DIContainer
         };
     }
 
+    public function protect($key, $value)
+    {
+        $this->values[$key] = function ($c) use ($value) {
+           return $value;
+        };
+    }
+
     public function extend($key, $value)
     {
 

@@ -99,4 +99,18 @@ class DIContainerTest extends TestCase
 
         $this->assertEquals('outside-inside-outside', $container('service'));
     }
+
+    /** @test */
+    public function it_should_protect_invokables_we_dont_want_to_be_run_automatically()
+    {
+        $container = new DIContainer();
+        $container->protect('protectedInvokable', function () {
+            return 'shouldRunOutsideContainer';
+        });
+
+        $runnable = $container('protectedInvokable');
+        $this->assertTrue(is_callable($runnable));
+        $this->assertEquals('shouldRunOutsideContainer', $runnable());
+
+    }
 }
