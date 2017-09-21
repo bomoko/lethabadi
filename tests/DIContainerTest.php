@@ -84,4 +84,19 @@ class DIContainerTest extends TestCase
         $secondInvocation = $container('singleton');
         $this->assertTrue($firstInvocation === $secondInvocation);
     }
+
+    /** @test */
+    public function it_should_allow_us_to_extend_a_service()
+    {
+        $container = new DIContainer();
+        $container->bind('service', function ($c) {
+            return "inside";
+        });
+
+        $container->extend('service', function ($innerResult, $c) {
+          return "outside-" . $innerResult . "-outside";
+        });
+
+        $this->assertEquals('outside-inside-outside', $container('service'));
+    }
 }
