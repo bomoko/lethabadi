@@ -46,15 +46,15 @@ Service extensions should be invokable with two arguments, first, the value retu
 Here is an example of defining a service that returns a string, and then extending it to modify the string.
 
 ```
-    $container = new DIContainer();
-    $container->bind('service', function ($c) {
-        return "inside";
-    });
+$container = new DIContainer();
+$container->bind('service', function ($c) {
+    return "inside";
+});
 
-    $container->extend('service', function ($innerResult, $c) {
-      return "outside-" . $innerResult . "-outside";
-    });
+$container->extend('service', function ($innerResult, $c) {
+  return "outside-" . $innerResult . "-outside";
+});
 
-    $output = $container('service'); //will contain 'outside-inside-outside'
+$output = $container('service'); //will contain 'outside-inside-outside'
 ```
 
