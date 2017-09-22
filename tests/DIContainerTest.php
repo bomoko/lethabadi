@@ -2,6 +2,7 @@
 
 use Bomoko\Lethaba\DIContainer;
 use PHPUnit\Framework\TestCase;
+use Bomoko\Lethaba\Exception\ContainerEntryNotFoundException;
 
 class DIContainerTest extends TestCase
 {
@@ -19,6 +20,8 @@ class DIContainerTest extends TestCase
         $container = new DIContainer(['a' => 'abc', 'b' => 123]);
         $this->assertEquals('abc', $container('a'));
         $this->assertEquals(123, $container('b'));
+        $this->assertEquals('abc', $container->get('a'));
+        $this->assertEquals(123, $container->get('b'));
     }
 
     /** @test */
@@ -27,14 +30,23 @@ class DIContainerTest extends TestCase
         $container = new DIContainer();
         $container->bind('a', 'abc');
         $this->assertEquals('abc', $container('a'));
+        $this->assertEquals('abc', $container->get('a'));
     }
 
     /** @test */
     public function it_should_throw_an_error_when_a_key_doesnt_exist()
     {
         $container = new DIContainer();
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(ContainerEntryNotFoundException::class);
         $output = $container('notBoundValue');
+    }
+
+    /** @test */
+    public function it_should_throw_an_error_when_a_key_doesnt_exist_called_via_psr11_interface()
+    {
+        $container = new DIContainer();
+        $this->expectException(ContainerEntryNotFoundException::class);
+        $output = $container->get('notBoundValue');
     }
 
     /** @test */
@@ -45,6 +57,7 @@ class DIContainerTest extends TestCase
             return 'invoked';
         });
         $this->assertEquals('invoked', $container('invokable'));
+        $this->assertEquals('invoked', $container->get('invokable'));
     }
 
     /** @test */
@@ -57,6 +70,7 @@ class DIContainerTest extends TestCase
         });
 
         $this->assertEquals('accessed', $container('invoked'));
+        $this->assertEquals('accessed', $container->get('invoked'));
     }
 
     /** @test */
@@ -70,6 +84,9 @@ class DIContainerTest extends TestCase
         $firstInvocation = $container('service');
         $secondInvocation = $container('service');
         $this->assertFalse($firstInvocation === $secondInvocation);
+        $firstInvocation = $container->get('service');
+        $secondInvocation = $container->get('service');
+        $this->assertFalse($firstInvocation === $secondInvocation);
     }
 
     /** @test */
@@ -82,6 +99,9 @@ class DIContainerTest extends TestCase
 
         $firstInvocation = $container('singleton');
         $secondInvocation = $container('singleton');
+        $this->assertTrue($firstInvocation === $secondInvocation);
+        $firstInvocation = $container->get('singleton');
+        $secondInvocation = $container->get('singleton');
         $this->assertTrue($firstInvocation === $secondInvocation);
     }
 
@@ -98,6 +118,7 @@ class DIContainerTest extends TestCase
         });
 
         $this->assertEquals('outside-inside-outside', $container('service'));
+        $this->assertEquals('outside-inside-outside', $container->get('service'));
     }
 
     /** @test */
@@ -111,6 +132,20 @@ class DIContainerTest extends TestCase
         $runnable = $container('protectedInvokable');
         $this->assertTrue(is_callable($runnable));
         $this->assertEquals('shouldRunOutsideContainer', $runnable());
-
+        $runnable = $container->get('protectedInvokable');
+        $this->assertTrue(is_callable($runnable));
+        $this->assertEquals('shouldRunOutsideContainer', $runnable());
     }
+
+    /** @test */
+    public function it_should_throw_an_exception_if_we_try_extend_a_service_that_doesnt_exist()
+    {
+        $container = new DIContainer();
+
+        $this->expectException(ContainerEntryNotFoundException::class);
+        $container->extend('service', function ($innerResult, $c) {
+            return "outside-" . $innerResult . "-outside";
+        });
+    }
+
 }
