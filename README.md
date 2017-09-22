@@ -11,6 +11,17 @@ you can optionally pass an array of initial parameters at construction time
 
 `$container = new DIContainer(['parameter' => 'value']);`
 
+### Retrieving Parameters and Services
+
+There are two options for pulling parameters and services out of the container:
+
+`$output = $container('serviceName');`
+
+and
+
+`$output = $container->get('serviceName'); //PSR-11 style`
+
+
 ### Defining Parameters and Services
 
 You're able to add simple values, objects, and functions by binding them to the container
